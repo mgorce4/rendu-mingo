@@ -41,6 +41,7 @@ app.get("/", (req, res) => {
     endpoints: {
       health: "/api/health",
       movies: "/api/movies",
+      genres: "/api/genres",
       auth: "/api/auth",
       rentals: "/api/rentals",
       reviews: "/api/reviews",
@@ -61,6 +62,8 @@ app.get("/api/health", (req, res) => {
 // TODO: Importer et utiliser les routes (séance 6)
 import movieRoutes from "./routes/movie.routes.js";
 app.use("/api/movies", movieRoutes);
+import genreRoutes from "./routes/genre.routes.js";
+app.use("/api/genres", genreRoutes);
 import authRoutes from "./routes/auth.routes.js";
 app.use("/api/auth", authRoutes);
 import rentalRoutes from "./routes/rental.routes.js";
