@@ -5,7 +5,11 @@ import Movie from '../models/Movie.js';
 export const getAllGenres = async (req, res, next) => {
     try {
         const genres = await Movie.distinct('genre', { isAvailable: true });
-        res.json(genres);
+        res.status(200).json({
+            success: true,
+            count: genres.length,
+            data: genres,
+        });
     }
     catch (error) {
         next(error);

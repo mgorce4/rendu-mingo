@@ -299,6 +299,21 @@ export const genresAPI = {
   },
 };
 
+// ==================== USERS ENDPOINTS ====================
+export const usersAPI = {
+  /**
+   * Mettre à jour les genres favoris d'un utilisateur
+   * @param {string} userId
+   * @param {string[]} favoriteGenres
+   */
+  updateFavoriteGenres: async (userId, favoriteGenres) => {
+    return await fetchAPI(`/users/${userId}`, {
+      method: "PUT",
+      body: JSON.stringify({ favoriteGenres }),
+    });
+  },
+};
+
 // ==================== RENTALS ENDPOINTS ====================
 
 export const rentalsAPI = {
@@ -396,6 +411,7 @@ export const getUser = () => {
 // Export par défaut
 export default {
   authAPI,
+  usersAPI,
   moviesAPI,
   rentalsAPI,
   isAuthenticated,

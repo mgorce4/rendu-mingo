@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react";
-import { authAPI, saveAuth, clearAuth, getUser } from "../services/api";
+import { authAPI, usersAPI, saveAuth, clearAuth, getUser } from "../services/api";
 
 const AuthContext = createContext();
 
@@ -113,7 +113,14 @@ export function AuthProvider({ children }) {
   //Mettre à jour les genres favoris
   const updateFavoriteGenres = async (updatedGenres) => {
     try {
-      const response = await authAPI.updateFavoriteGenres(updatedGenres);
+      if (!user?._id) {
+        return { success: false, error: "Utilisateur non connecté" };
+      }
+
+      const response = await usersAPI.updateFavoriteGenres(
+        user._id,
+        updatedGenres,
+      );
 
       if (!response.success) {
         return {

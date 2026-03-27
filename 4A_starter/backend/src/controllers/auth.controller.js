@@ -262,18 +262,17 @@ export const updateFavoriteGenres = async (req, res, next) => {
     if (!Array.isArray(favoriteGenres)) {
       return res.status(400).json({
         success: false,
-        message: "Le champ favoriteGenres doit être un tableau",
+        message: "favoriteGenres doit être un tableau",
       });
     }
 
-    const normalizedGenres = [
-      ...new Set(
-        favoriteGenres
-          .filter((genre) => typeof genre === "string")
-          .map((genre) => genre.trim())
-          .filter(Boolean),
-      ),
-    ];
+    // Nettoyer: garder des strings non vides et uniques
+    const cleanedGenres = [...new Set(
+      favoriteGenres
+        .filter((genre) => typeof genre === "string")
+        .map((genre) => genre.trim())
+        .filter(Boolean),
+    )];
 
     const user = await User.findById(req.user._id);
 
@@ -284,7 +283,7 @@ export const updateFavoriteGenres = async (req, res, next) => {
       });
     }
 
-    user.favoriteGenres = normalizedGenres;
+    user.favoriteGenres = cleanedGenres;
     await user.save();
 
     res.status(200).json({
