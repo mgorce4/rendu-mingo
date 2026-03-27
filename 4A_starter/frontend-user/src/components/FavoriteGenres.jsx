@@ -31,12 +31,17 @@ const FavoriteGenres = () => {
   const fetchAllGenres = useCallback(async () => {
     try {
       const result = await genresAPI.getAll();
-      if (!result.success) {
-        throw new Error(
-          result.message || "Erreur lors du chargement des genres",
-        );
+      const apiGenres = Array.isArray(result)
+        ? result
+        : Array.isArray(result?.data)
+          ? result.data
+          : [];
+
+      if (apiGenres.length === 0) {
+        throw new Error("Aucun genre disponible");
       }
-      setAllGenres(result.data);
+
+      setAllGenres(apiGenres);
     } catch {
       // Fallback local pour garder la maquette utilisable même si l'API n'est pas prête
       setAllGenres(

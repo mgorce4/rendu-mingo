@@ -256,7 +256,45 @@ export const logout = async (req, res, next) => {
 // @route   PUT /api/auth/favorite-genres
 // @access  Private
 export const updateFavoriteGenres = async (req, res, next) => {
- //TODO
+  try {
+    const { favoriteGenres } = req.body;
+
+    if (!Array.isArray(favoriteGenres)) {
+      return res.status(400).json({
+        success: false,
+        message: "Le champ favoriteGenres doit être un tableau",
+      });
+    }
+
+    const normalizedGenres = [
+      ...new Set(
+        favoriteGenres
+          .filter((genre) => typeof genre === "string")
+          .map((genre) => genre.trim())
+          .filter(Boolean),
+      ),
+    ];
+
+    const user = await User.findById(req.user._id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "Utilisateur non trouvé",
+      });
+    }
+
+    user.favoriteGenres = normalizedGenres;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Genres favoris mis à jour avec succès",
+      data: user,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 

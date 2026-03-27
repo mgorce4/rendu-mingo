@@ -134,7 +134,27 @@ export function AuthProvider({ children }) {
   };
   //Mettre à jour les genres favoris
   const updateFavoriteGenres = async (updatedGenres) => {
-    //TODO
+    try {
+      const response = await authAPI.updateFavoriteGenres(updatedGenres);
+
+      if (!response.success) {
+        return {
+          success: false,
+          error: response.message || "Erreur de mise à jour des genres favoris",
+        };
+      }
+
+      const updatedUser = response.data;
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      setUser(updatedUser);
+
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: error.message || "Erreur de mise à jour des genres favoris",
+      };
+    }
   };
 
   // Changer le mot de passe

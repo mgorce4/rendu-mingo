@@ -287,7 +287,7 @@ export const genresAPI = {
    * Obtenir la liste des genres
    */
   getAll: async () => {
-    //TODO
+    return await fetchAPI("/genres");
   },
 };
 
