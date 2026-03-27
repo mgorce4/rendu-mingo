@@ -10,3 +10,14 @@ Contrôleur Movie (3 routes):
 + Route Genre (GET /api/genres)
 + Route Movie (GET /api/movies/recent, GET /api/movies/popular, GET /api/movies/genre/:genre)
 
+
+
+
+## Edith :
+P2: Maquette page profil
+- Appel GET /api/genres
+- Affichage badges genres
+- Sélection/désélection
+- PUT /api/users/:id
+- Feedback visuel
+  
