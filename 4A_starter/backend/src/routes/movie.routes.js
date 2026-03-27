@@ -4,6 +4,7 @@ import {
   getMovieById,
   getRecentMovies,
   getPopularMovies,
+  getRandomMovies,
   createMovie,
   updateMovie,
   deleteMovie,
@@ -13,7 +14,7 @@ import {
   getMovieSections,
   likeMovie,
   unlikeMovie,
-  getLikedMoviesByUser,
+  //getLikedMoviesByUser,
 } from "../controllers/movie.controller.js";
 import { protect, admin, optionalAuth } from "../middleware/auth.middleware.js";
 
@@ -23,6 +24,7 @@ const router = express.Router();
 router.get("/", getAllMovies);
 router.get("/recent", getRecentMovies);
 router.get("/popular", getPopularMovies);
+router.get("/random", getRandomMovies);
 router.get("/genre/:genre", getMoviesByGenre);
 router.get("/sections", optionalAuth, getMovieSections);
 router.get("/stats", protect, admin, getMovieStats);
@@ -33,8 +35,8 @@ router.get("/:id", getMovieById);
 
 
 //Routes protégées pour les like
-router.post("/:id/like", protect, likeMovie);
-router.post("/:id/unlike", protect, unlikeMovie);
+//router.post("/:id/like", protect, likeMovie);
+//router.post("/:id/unlike", protect, unlikeMovie);
 
 // Routes protégées admin (sera activé séance 9)
 router.post("/", protect, admin, createMovie);
