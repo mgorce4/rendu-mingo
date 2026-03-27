@@ -1,11 +1,12 @@
 // React
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 // Components
 import Navbar from "../components/common/Navbar";
 import Footer from "../components/layout/Footer";
 import Loading from "../components/common/Loading";
 import LoadingError from "../components/common/LoadingError";
+import FavoriteGenres from "../components/FavoriteGenres";
 
 // Context
 import { useAuth } from "../context/AuthContext";
@@ -15,7 +16,7 @@ import { useNotification } from "../context/NotificationContext";
 function Profile() {
   // State pour gérer le chargement, les erreurs, les succès, et les données utilisateur
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loadError, setLoadError] = useState(null);
   const [editing, setEditing] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -30,27 +31,27 @@ function Profile() {
   const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   const { user, changePassword, updateProfile } = useAuth();
-  const { success } = useNotification();
+  const { success, error: notifyError } = useNotification();
 
   // Effet pour charger les données du profil au montage du composant
-  useEffect(() => {
-    fetchUserProfile();
-  }, [user]);
-
   // Fonction pour récupérer les données du profil utilisateur
-  const fetchUserProfile = async () => {
+  const fetchUserProfile = useCallback(async () => {
     setLoading(true);
     try {
       setFormData({
-        name: user.name,
-        email: user.email,
+        name: user?.name || "",
+        email: user?.email || "",
       });
     } catch (err) {
-      setError(err.message || "Erreur lors du chargement du profil");
+      setLoadError(err.message || "Erreur lors du chargement du profil");
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    fetchUserProfile();
+  }, [fetchUserProfile]);
 
   // Handlers pour les changements de formulaire et les actions de mise à jour du profil et de changement de mot de passe
   const handleFormChange = (e) => {
@@ -71,13 +72,13 @@ function Profile() {
     try {
       const result = await updateProfile(formData);
       if (!result.success) {
-        throw new Error(result.message || "Erreur lors de la mise à jour");
+        throw new Error(result.error || "Erreur lors de la mise à jour");
       }
 
       setEditing(false);
       success("Profil mis à jour avec succès");
     } catch (err) {
-      error(err.message || "Erreur lors de la mise à jour du profil");
+      notifyError(err.message || "Erreur lors de la mise à jour du profil");
     }
   };
 
@@ -86,7 +87,7 @@ function Profile() {
     e.preventDefault();
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      error("Les mots de passe ne correspondent pas");
+      notifyError("Les mots de passe ne correspondent pas");
       return;
     }
 
@@ -97,7 +98,7 @@ function Profile() {
       );
       if (!result.success) {
         throw new Error(
-          result.message || "Erreur lors du changement de mot de passe",
+          result.error || "Erreur lors du changement de mot de passe",
         );
       }
       setPasswordData({
@@ -108,12 +109,15 @@ function Profile() {
       setShowPasswordForm(false);
       success("Mot de passe changé avec succès");
     } catch (err) {
-      error(err.message || "Erreur lors du changement de mot de passe");
+      notifyError(err.message || "Erreur lors du changement de mot de passe");
     }
   };
 
   if (loading) return <Loading />;
-  if (error) return <LoadingError fetchData={fetchUserProfile} error={error} />;
+  if (loadError)
+    return <LoadingError fetchData={fetchUserProfile} error={loadError} />;
+
+
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -198,6 +202,8 @@ function Profile() {
                 </div>
               )}
             </div>
+
+            <FavoriteGenres />
           </div>
 
           {/* Barre latérale */}
@@ -273,7 +279,8 @@ function Profile() {
             </div>
           </div>
         </div>
-
+        
+        
 
       </div>
 

@@ -24,6 +24,7 @@ export function CartProvider({ children }) {
   const [rentalsIsLoading, setRentalsIsLoading] = useState(false);
 
   const { isAuthenticated } = useAuth();
+  const authenticated = isAuthenticated();
 
   // Charger les locations de l'utilisateur
   const fetchRentals = async () => {
@@ -50,7 +51,7 @@ export function CartProvider({ children }) {
   //Chargement des locations au montage du composant et à chaque changement d'authentification
   useEffect(() => {
     fetchRentals();
-  }, [isAuthenticated()]);
+  }, [authenticated]);
 
   // Sauvegarder le panier dans localStorage
   useEffect(() => {

@@ -1,6 +1,5 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import { authAPI, saveAuth, clearAuth, getUser } from "../services/api";
-import { use } from "react";
 
 const AuthContext = createContext();
 
@@ -19,7 +18,8 @@ export function AuthProvider({ children }) {
         try {
           // Vérifier que le token est toujours valide
           const response = await authAPI.getMe();
-          setUser(response.data);
+          // Supporte les formats fetch ({ success, data }) et axios ({ data: { data } })
+          setUser(response?.data?.data || response?.data || null);
         } catch (error) {
           console.error("Error loading user:", error);
           clearAuth();
