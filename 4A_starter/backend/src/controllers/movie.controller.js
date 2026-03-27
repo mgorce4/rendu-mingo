@@ -224,6 +224,44 @@ export const getMoviesByGenre = async (req, res, next) => {
   
 };
 
+// @desc    Obtenir les sections home (popular, recent, personalized)
+// @route   GET /api/movies/sections
+// @access  Public (personnalisé si utilisateur connecté)
+export const getMovieSections = async (req, res, next) => {
+  try {
+    const [popular, recent] = await Promise.all([
+      Movie.getPopularMovies(10),
+      Movie.find({
+        isAvailable: true,
+        year: { $gte: new Date().getFullYear() - 2 },
+      })
+        .sort({ year: -1, createdAt: -1 })
+        .limit(10),
+    ]);
+
+    let personalized = [];
+    if (req.user?.favoriteGenres?.length) {
+      personalized = await Movie.find({
+        isAvailable: true,
+        genre: { $in: req.user.favoriteGenres },
+      })
+        .sort({ rating: -1, rentalCount: -1 })
+        .limit(10);
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        popular,
+        recent,
+        personalized,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Obtenir les films dans une fourchette de prix
 // @route   GET /api/movies/price?min=0&max=10
 // @access  Public

@@ -10,11 +10,12 @@ import {
   getMovieStats,
   getSimilarMovies,
   getMoviesByGenre,
+  getMovieSections,
   likeMovie,
   unlikeMovie,
   getLikedMoviesByUser,
 } from "../controllers/movie.controller.js";
-import { protect, admin } from "../middleware/auth.middleware.js";
+import { protect, admin, optionalAuth } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
 
@@ -23,6 +24,7 @@ router.get("/", getAllMovies);
 router.get("/recent", getRecentMovies);
 router.get("/popular", getPopularMovies);
 router.get("/genre/:genre", getMoviesByGenre);
+router.get("/sections", optionalAuth, getMovieSections);
 router.get("/stats", protect, admin, getMovieStats);
 router.get("/:id/similar", getSimilarMovies);
 
