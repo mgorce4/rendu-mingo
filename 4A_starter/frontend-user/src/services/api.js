@@ -179,21 +179,28 @@ export const moviesAPI = {
    * @param {string} genre - Genre du film
    */
   getByGenre: async (genre) => {
-    // TODO
+    return await fetchAPI(`/movies/genre/${encodeURIComponent(genre)}`);
   },
 
   /**
    * Obtenir les films récents
    */
   getRecent: async () => {
-    // TODO
+    return await fetchAPI("/movies/recent");
   },
 
   /**
    * Obtenir les films populaires
    */
   getPopular: async () => {
-    // TODO
+    return await fetchAPI("/movies/popular");
+  },
+
+  /**
+   * Obtenir les sections de la page d'accueil
+   */
+  getSections: async () => {
+    return await fetchAPI("/movies/sections");
   },
 
   /**
