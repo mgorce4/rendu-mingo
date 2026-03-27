@@ -19,26 +19,83 @@ import { moviesAPI } from "../services/api";
 function Home() {
   // États locaux
   const [movies, setMovies] = useState([]);
+  const [popularMovies, setPopularMovies] = useState([]);
+  const [recentMovies, setRecentMovies] = useState([]);
+  const [personalizedMovies, setPersonalizedMovies] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
   const { error } = useNotification();
+  const authenticated = isAuthenticated();
 
   // Fonction pour charger les films
   const fetchMovies = async () => {
     try {
       setLoading(true);
 
-      // Appel API avec fetch
-      const response = await moviesAPI.getAll();
+      // Endpoint principal pour la maquette home en sections
+      const sectionsResponse = await moviesAPI.getSections();
+      const sections = sectionsResponse?.data || {};
 
-      if (response.success) {
-        setMovies(response.data);
+      const popular = Array.isArray(sections.popular) ? sections.popular : [];
+      const recent = Array.isArray(sections.recent) ? sections.recent : [];
+      const personalized = Array.isArray(sections.personalized)
+        ? sections.personalized
+        : [];
+
+      setPopularMovies(popular);
+      setRecentMovies(recent);
+      setPersonalizedMovies(personalized);
+
+      // Base de recherche/navbar + hero fallback
+      const mergedMovies = [...popular, ...recent, ...personalized];
+      const uniqueMovies = Array.from(
+        new Map(mergedMovies.map((movie) => [movie._id, movie])).values(),
+      );
+
+      if (uniqueMovies.length > 0) {
+        setMovies(uniqueMovies);
       } else {
-        throw new Error(response.message || "Erreur lors du chargement");
+        // Fallback si sections vides
+        const allMoviesResponse = await moviesAPI.getAll();
+        const allMovies = Array.isArray(allMoviesResponse?.movies)
+          ? allMoviesResponse.movies
+          : Array.isArray(allMoviesResponse?.data)
+            ? allMoviesResponse.data
+            : [];
+        setMovies(allMovies);
       }
     } catch (err) {
-      error(err.message);
+      // Fallback total sur les endpoints séparés
+      try {
+        const [popularResponse, recentResponse, allResponse] = await Promise.all([
+          moviesAPI.getPopular(),
+          moviesAPI.getRecent(),
+          moviesAPI.getAll(),
+        ]);
+
+        const popular = Array.isArray(popularResponse?.data)
+          ? popularResponse.data
+          : Array.isArray(popularResponse)
+            ? popularResponse
+            : [];
+        const recent = Array.isArray(recentResponse?.data)
+          ? recentResponse.data
+          : Array.isArray(recentResponse)
+            ? recentResponse
+            : [];
+        const allMovies = Array.isArray(allResponse?.movies)
+          ? allResponse.movies
+          : Array.isArray(allResponse?.data)
+            ? allResponse.data
+            : [];
+
+        setPopularMovies(popular);
+        setRecentMovies(recent);
+        setMovies(allMovies.length > 0 ? allMovies : [...popular, ...recent]);
+      } catch {
+        error(err.message || "Erreur lors du chargement");
+      }
       console.error("Error fetching movies:", err);
     } finally {
       setLoading(false);
@@ -48,15 +105,7 @@ function Home() {
   // Charger les films
   useEffect(() => {
     fetchMovies();
-  }, []);
-
-  //TODO: Charger les genres favoris de l'utilisateur
-
-  //TODO: Charger les films populaires
-
-  //TODO: Charger les films récents
-
-  //TODO: Charger les films pour chaque genre préféré
+  }, [authenticated]);
 
   // État de chargement
   if (loading) {
@@ -87,8 +136,12 @@ function Home() {
       <MovieHeroCarousel />
       {/* Movies Lists */}
       <div className="container mx-auto">
-        <MovieCarousel title="Films populaires" movies={[]} />
-        <MovieCarousel title="Films récents" movies={[]} />
+        <MovieCarousel title="Films populaires" movies={popularMovies} />
+        <MovieCarousel title="Films récents" movies={recentMovies} />
+        <MovieCarousel
+          title={authenticated ? "Recommandés pour vous" : "Suggestions personnalisées"}
+          movies={personalizedMovies}
+        />
       </div>
 
       <Footer />
