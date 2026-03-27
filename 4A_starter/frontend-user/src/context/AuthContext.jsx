@@ -6,7 +6,6 @@ const AuthContext = createContext();
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [likedMovies, setLikedMovies] = useState([]);
 
   // Charger l'utilisateur depuis localStorage au démarrage
   useEffect(() => {
@@ -31,27 +30,6 @@ export function AuthProvider({ children }) {
 
     initAuth();
   }, []);
-
-  const fetchLikedMovies = async () => {
-    try {
-      const response = await authAPI.getLikedMovies();
-      if (response.success) {
-        setLikedMovies(response.data);
-      } else {
-        throw new Error(
-          response.message || "Erreur lors de la récupération des films likés",
-        );
-      }
-    } catch (error) {
-      setLikedMovies([]);
-      console.error(
-        "Error fetching liked movies:",
-        error.message || "Erreur lors de la récupération des films likés",
-      );
-    }
-  };
-
-  // Charger les films likés de l'utilisateur à chaque changement de l'utilisateur
 
   // Fonction de connexion
   const login = async (email, password) => {
@@ -200,6 +178,7 @@ export function AuthProvider({ children }) {
 }
 
 // Hook personnalisé
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
 
