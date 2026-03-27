@@ -262,6 +262,58 @@ export const getMovieSections = async (req, res, next) => {
   }
 };
 
+// @desc    Obtenir les films par genres préférés de l'utilisateur (groupés par genre)
+// @route   GET /api/movies/favorites/by-genre
+// @access  Private
+export const getMoviesByUserFavoriteGenres = async (req, res, next) => {
+  try {
+    // Vérifier que l'utilisateur est connecté
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: "Utilisateur non connecté",
+      });
+    }
+
+    // Vérifier que l'utilisateur a des genres préférés
+    const favoriteGenres = req.user.favoriteGenres || [];
+    if (favoriteGenres.length === 0) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          favoriteGenres: [],
+          moviesByGenre: {},
+        },
+        message: "L'utilisateur n'a pas encore défini ses genres préférés",
+      });
+    }
+
+    // Récupérer les films pour chaque genre préféré
+    const moviesByGenre = {};
+    
+    for (const genre of favoriteGenres) {
+      const movies = await Movie.find({
+        isAvailable: true,
+        genre: { $in: [genre] },
+      })
+        .sort({ rating: -1, rentalCount: -1 })
+        .limit(10);
+      
+      moviesByGenre[genre] = movies;
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        favoriteGenres,
+        moviesByGenre,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // @desc    Obtenir les films dans une fourchette de prix
 // @route   GET /api/movies/price?min=0&max=10
 // @access  Public

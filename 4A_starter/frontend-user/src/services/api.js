@@ -204,6 +204,14 @@ export const moviesAPI = {
   },
 
   /**
+   * Obtenir les films groupés par genres préférés de l'utilisateur connecté
+   * @returns {Promise} - Films groupés par genre préféré
+   */
+  getByUserFavoriteGenres: async () => {
+    return await fetchAPI("/movies/favorites/by-genre");
+  },
+
+  /**
    * Obtenir les films au hasard
    * @param {*} limit
    * @returns

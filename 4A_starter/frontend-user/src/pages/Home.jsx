@@ -7,6 +7,7 @@ import Footer from "../components/layout/Footer";
 import MovieCarousel from "../components/movies/MovieCarousel";
 import MovieHeroCarousel from "../components/movies/MovieHeroCarousel";
 import Loading from "../components/common/Loading";
+import PersonalizedRecommendations from "../components/movies/PersonalizedRecommendations";
 
 // Context
 import { useAuth } from "../context/AuthContext";
@@ -24,7 +25,7 @@ function Home() {
   const [personalizedMovies, setPersonalizedMovies] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const { error } = useNotification();
   const authenticated = isAuthenticated();
 
@@ -105,7 +106,7 @@ function Home() {
   // Charger les films
   useEffect(() => {
     fetchMovies();
-  }, [authenticated]);
+  }, [authenticated, user]);
 
   // État de chargement
   if (loading) {
@@ -134,14 +135,21 @@ function Home() {
 
       {/* Hero Section */}
       <MovieHeroCarousel />
+      
       {/* Movies Lists */}
       <div className="container mx-auto">
         <MovieCarousel title="Films populaires" movies={popularMovies} />
         <MovieCarousel title="Films récents" movies={recentMovies} />
-        <MovieCarousel
-          title={authenticated ? "Recommandés pour vous" : "Suggestions personnalisées"}
-          movies={personalizedMovies}
-        />
+
+        {/* Section de recommandations personnalisées ou suggestions génériques */}
+        {authenticated ? (
+          <PersonalizedRecommendations />
+        ) : (
+          <MovieCarousel
+            title="Suggestions personnalisées"
+            movies={personalizedMovies}
+          />
+        )}
       </div>
 
       <Footer />
