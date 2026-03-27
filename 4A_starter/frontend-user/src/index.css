@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #e50914;
+
+  --color-primary-dark: #b20710;
+
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+@layer base {
+  .star {
+    font-size: 1.5rem;
+    color: #555;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    &.active {
+      color: #fbbf24;
+    }
+  }
+  /* Le composant Review individuel */
+  .review-card {
+    /* Mode LISTE : Alignement horizontal */
+    &.list {
+      @apply flex-row items-center p-4 min-h-25 border-b border-slate-800 hover:bg-gray-800 transition flex hover:rounded;
+
+      .review-image * {
+        @apply w-10  rounded-full border border-white;
+      }
+      .review-content {
+        @apply ml-4 flex-1;
+      }
+    }
+
+    /* Mode GRILLE : Alignement vertical (comme ton image 2) */
+    &.grid {
+      @apply flex-col bg-gray-900 rounded-lg border border-gray-800 overflow-hidden hover:border-gray-700 transition flex;
+
+      .review-image * {
+        @apply w-full h-48 object-cover;
+      }
+      .review-content {
+        @apply p-4;
+      }
+    }
+  }
+}
+@keyframes tileIn {
+  0% {
+    opacity: 0;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeInText {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-tileIn {
+  animation: tileIn 0.8s ease-out;
+}
+
+.animate-fadeInText {
+  animation: fadeInText 1.2s ease-out forwards;
+}
