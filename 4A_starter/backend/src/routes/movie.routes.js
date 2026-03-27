@@ -12,6 +12,7 @@ import {
   getSimilarMovies,
   getMoviesByGenre,
   getMovieSections,
+  getMoviesByUserFavoriteGenres,
   likeMovie,
   unlikeMovie,
   //getLikedMoviesByUser,
@@ -19,6 +20,9 @@ import {
 import { protect, admin, optionalAuth } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
+
+// Route protégée pour les films par genres préférés (spécifique, avant /:id)
+router.get("/favorites/by-genre", protect, getMoviesByUserFavoriteGenres);
 
 // Routes publiques
 router.get("/", getAllMovies);
@@ -38,14 +42,9 @@ router.get("/:id", getMovieById);
 //router.post("/:id/like", protect, likeMovie);
 //router.post("/:id/unlike", protect, unlikeMovie);
 
-// Routes protégées admin (sera activé séance 9)
+// Routes protégées admin
 router.post("/", protect, admin, createMovie);
 router.put("/:id", protect, admin, updateMovie);
 router.delete("/:id", protect, admin, deleteMovie);
-
-// Routes temporaires sans authentification (pour tester)
-router.post("/", createMovie);
-router.put("/:id", updateMovie);
-router.delete("/:id", deleteMovie);
 
 export default router;
