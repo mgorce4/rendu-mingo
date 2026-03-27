@@ -2,6 +2,8 @@ import express from "express";
 import {
   getAllMovies,
   getMovieById,
+  getRecentMovies,
+  getPopularMovies,
   createMovie,
   updateMovie,
   deleteMovie,
@@ -18,12 +20,14 @@ const router = express.Router();
 
 // Routes publiques
 router.get("/", getAllMovies);
+router.get("/recent", getRecentMovies);
+router.get("/popular", getPopularMovies);
+router.get("/genre/:genre", getMoviesByGenre);
+router.get("/stats", protect, admin, getMovieStats);
+router.get("/:id/similar", getSimilarMovies);
 
 // Route pour obtenir un film par ID, ou les films populaires/récents/aléatoires
 router.get("/:id", getMovieById);
-
-router.get("/:id/similar", getSimilarMovies);
-router.get("/genre/:genre", getMoviesByGenre);
 
 
 //Routes protégées pour les like
@@ -34,7 +38,6 @@ router.post("/:id/unlike", protect, unlikeMovie);
 router.post("/", protect, admin, createMovie);
 router.put("/:id", protect, admin, updateMovie);
 router.delete("/:id", protect, admin, deleteMovie);
-router.get("/stats", protect, admin, getMovieStats);
 
 // Routes temporaires sans authentification (pour tester)
 router.post("/", createMovie);

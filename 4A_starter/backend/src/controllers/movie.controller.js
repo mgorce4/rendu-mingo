@@ -4,21 +4,64 @@ import Movie from "../models/Movie.js";
 // @route   GET /api/movies
 // @access  Public
 export const getAllMovies = async (req, res, next) => {
-  //TODO Cf 8ème séance
+  try {
+        const { search, genre, year, sort, page = 1, limit = 10 } = req.query;
+        let filter = {};
+        // Recherche sur titre ou description
+        if (search) {
+            filter.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { description: { $regex: search, $options: 'i' } }
+            ];
+        }
+        // Filtre genre (array)
+        if (genre) filter.genre = { $in: [genre] };
+        // Filtre année
+        if (year) filter.year = Number(year);
+        // Pagination
+        const skip = (Number(page) - 1) * Number(limit);
+        // Construction de la requête
+        let moviesQuery = Movie.find(filter);
+        // Tri
+        if (sort) moviesQuery = moviesQuery.sort({ [sort]: -1 });
+        moviesQuery = moviesQuery.skip(skip).limit(Number(limit));
+        // Exécution
+        const movies = await moviesQuery;
+        const total = await Movie.countDocuments(filter);
+        res.json({ movies, total });
+    } catch (error) {
+        next(error);
+    }
 };
 
 // @desc    Obtenir un film par ID
 // @route   GET /api/movies/:id
 // @access  Public
 export const getMovieById = async (req, res, next) => {
-  //TODO Cf 8ème séance
+  const movie = await Movie.findById(req.params.id);
+      if (!movie) {
+          return res.status(404).json({ message: 'Movie not found' });
+      }
+      res.json(movie);
 };
 
 // @desc    Créer un nouveau film
 // @route   POST /api/movies
 // @access  Private/Admin
 export const createMovie = async (req, res, next) => {
-  //TODO Cf 8ème séance
+  const { title, description, poster, backdrop, genre, year, duration, price, rating } = req.body;
+    const movie = await Movie.create({
+        title,
+        description,
+        poster,
+        backdrop,
+        genre,
+        year,
+        duration,
+        price,
+        rating
+    });
+    res.status(201).json(movie);
 
 };
 
@@ -26,7 +69,19 @@ export const createMovie = async (req, res, next) => {
 // @route   PUT /api/movies/:id
 // @access  Private/Admin
 export const updateMovie = async (req, res, next) => {
-  //TODO Cf 8ème séance
+  const updatedMovie = await Movie.findByIdAndUpdate(
+    req.params.id,
+    req.body,
+    {
+        new: true, // Retourner le document modifié
+        runValidators: true // Exécuter les validations
+    }
+    );
+    if (!updatedMovie) {
+        return res.status(404).json({ message: 'Movie not found' });
+    }
+    res.json(updatedMovie);
+    
 
 };
 
@@ -34,8 +89,13 @@ export const updateMovie = async (req, res, next) => {
 // @route   DELETE /api/movies/:id
 // @access  Private/Admin
 export const deleteMovie = async (req, res, next) => {
-  //TODO Cf 8ème séance
+  const movie = await Movie.findById(req.params.id);
+    if (!movie) {
+        return res.status(404).json({ message: 'Movie not found' });
+    }
+    await movie.deleteOne();
 };
+
 
 // @desc    Obtenir les statistiques des films
 // @route   GET /api/movies/stats
@@ -104,7 +164,18 @@ export const getSimilarMovies = async (req, res, next) => {
 // @route   GET /api/movies/popular
 // @access  Public
 export const getPopularMovies = async (req, res, next) => {
-  //TODO
+  try {
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const movies = await Movie.getPopularMovies(limit);
+
+    res.status(200).json({
+      success: true,
+      count: movies.length,
+      data: movies,
+    });
+  } catch (error) {
+    next(error);
+  }
 
 };
 
@@ -112,14 +183,44 @@ export const getPopularMovies = async (req, res, next) => {
 // @route   GET /api/movies/recent
 // @access  Public
 export const getRecentMovies = async (req, res, next) => {
-  //TODO
+  try {
+    const currentYear = new Date().getFullYear();
+    const minYear = currentYear - 2;
+    const limit = parseInt(req.query.limit, 10) || 10;
+
+    const movies = await Movie.find({
+      isAvailable: true,
+      year: { $gte: minYear },
+    })
+      .sort({ year: -1, createdAt: -1 })
+      .limit(limit);
+
+    res.status(200).json({
+      success: true,
+      count: movies.length,
+      data: movies,
+    });
+  } catch (error) {
+    next(error);
+  }
   
 };
 // @desc    Obtenir les films d'un genre spécifique
 // @route   GET /api/movies/genre/:genre
 // @access  Public
 export const getMoviesByGenre = async (req, res, next) => {
- //TODO
+  try {
+    const { genre } = req.params;
+    const movies = await Movie.getByGenre(genre);
+
+    res.status(200).json({
+      success: true,
+      count: movies.length,
+      data: movies,
+    });
+  } catch (error) {
+    next(error);
+  }
   
 };
 
