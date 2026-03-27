@@ -6,10 +6,9 @@ import Loading from "../common/Loading";
 
 // Context
 import { useNotification } from "../../context/NotificationContext";
-import { useAuth } from "../../context/AuthContext";
 
 // Services
-import { moviesAPI, rentalsAPI } from "../../services/api";
+import { moviesAPI } from "../../services/api";
 
 const MovieHeroCarousel = () => {
   // États locaux
@@ -17,7 +16,6 @@ const MovieHeroCarousel = () => {
   const [movie, setMovie] = useState(null);
   const [loading, setLoading] = useState(true);
   const { error } = useNotification();
-  const { isAuthenticated, user } = useAuth();
 
   // 1. Memoize de la fonction de sélection aléatoire pour éviter les redéfinitions à chaque rendu
   const selectRandomMovie = useCallback((movieList) => {
@@ -48,7 +46,7 @@ const MovieHeroCarousel = () => {
     };
 
     fetchMovies();
-  }, [error, selectRandomMovie, isAuthenticated(), user]);
+  }, [error, selectRandomMovie]);
 
   // 3. Sélection d'un nouveau film toutes les 5 secondes
   useEffect(() => {
