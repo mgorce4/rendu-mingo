@@ -7,7 +7,7 @@ import {
   changePassword,
   logout,
   updateFavoriteGenres,
-  getLikedMovies
+  //getLikedMovies
 } from "../controllers/auth.controller.js";
 import { protect } from "../middleware/auth.middleware.js";
 
@@ -19,7 +19,7 @@ router.post("/login", login);
 
 // Routes protégées
 router.get("/me", protect, getMe);
-router.get("/me/likes", protect, getLikedMovies);
+//router.get("/me/likes", protect, getLikedMovies);
 
 router.put("/profile", protect, updateProfile);
 router.put("/change-password", protect, changePassword);
